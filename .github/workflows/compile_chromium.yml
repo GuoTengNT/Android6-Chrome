@@ -1,0 +1,57 @@
+name: Compile Chromium for Android 6
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      # 检查out代码
+      - name: Checkout code
+        uses: actions/checkout@v3
+      # 拉取Chromium源码
+      - name: Fetch Chromium source
+        run: |
+          mkdir chromium && cd chromium
+          fetch --nohooks android
+      # 同步依赖项和运行hooks
+      - name: Sync dependencies and run hooks
+        run: |
+          cd chromium/src
+          build/install-build-deps-android.sh
+          gclient runhooks
+      # 创建args.gn文件
+      - name: Create args.gn file
+        run: |
+          mkdir -p chromium/out/android
+          echo 'target_os = "android"' >> chromium/out/android/args.gn
+          echo 'target_cpu = "arm"' >> chromium/out/android/args.gn
+          # 你可以根据需要添加更多的args.gn配置，例如启用或禁用某些功能
+          # 以下是一些可能的配置示例：
+          # echo 'is_debug = false' >> chromium/out/android/args.gn
+          # echo 'enable_remoting = false' >> chromium/out/android/args.gn
+      # 生成构建配置
+      - name: Generate build config
+        run: |
+          cd chromium/src
+          gn gen out/android
+      # 构建Chromium Android
+      - name: Build Chromium Android
+        run: |
+          cd chromium/src
+          autoninja -C out/android chrome_public_apk
+      # 上传构建产物（可选）
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: chromium-apk
+          path: chromium/src/out/android/apks/ChromePublic.apk
+      # 清理工作空间（可选）
+      - name: Cleanup workspace
+        run: |
+          cd chromium
+          rm -rf src
