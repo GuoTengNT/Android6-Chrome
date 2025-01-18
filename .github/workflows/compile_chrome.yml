@@ -1,0 +1,49 @@
+name: Build Chrome for Android 6
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout repository containing Chromium/Chrome source code
+    - name: Checkout source code
+      uses: actions/checkout@v2
+
+    # Set up required dependencies for building Chromium
+    - name: Set up dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          git \
+          python3 \
+          python3-dev \
+          g++ \
+          curl \
+          cmake \
+          gn \
+          clang
+
+    # Install Android NDK and SDK for building Chrome for Android
+    - name: Set up Android NDK and SDK
+      run: |
+        sudo apt-get install -y openjdk-8-jdk
+        curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o sdk-tools.zip
+        unzip sdk-tools.zip -d $HOME/android-sdk
+        yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
+        $HOME/android-sdk/tools/bin/sdkmanager "platforms;android-23" "build-tools;29.0.3" "ndk;21.4.7075529"
+
+    # Build Chromium/Chrome for Android
+    - name: Build Chromium for Android
+      run: |
+        # Here we assume that you have a chromium src tree in the repository
+        cd chromium
+        python3 build/linux/sysroot_scripts/install-sysroot.py --arch=arm
+        ./build/install-build-deps.sh
+        gn gen out/Default --args="target_os=\"android\" target_cpu=\"arm\" is_debug=false android_sdk_root=\"$HOME/android-sdk\""
+        ninja -C out/Default chrome
