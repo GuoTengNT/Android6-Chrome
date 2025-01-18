@@ -14,6 +14,10 @@ jobs:
     - name: Checkout Chromium source code
       uses: actions/checkout@v2
 
+    # Initialize and update submodules (if necessary)
+    - name: Update Git submodules
+      run: git submodule update --init --recursive
+
     # Set up required dependencies for building Chromium
     - name: Set up dependencies
       run: |
@@ -66,13 +70,15 @@ jobs:
         echo "Current directory contents:"
         ls -la
         
-        # If the Chromium source is in a specific subdirectory, modify this path accordingly
-        # For example, if the Chromium source is in the 'src' directory, use:
-        # cd src
-        # Or if it's directly in the repository root, no need to change directory
+        # Change to the correct directory where the Chromium source code is located
         cd $GITHUB_WORKSPACE
 
-        # Install sysroot for ARM64 architecture
+        # Install sysroot for ARM64 architecture (ensure the file exists)
+        if [ ! -f build/linux/sysroot_scripts/install-sysroot.py ]; then
+          echo "Error: install-sysroot.py not found!"
+          exit 1
+        fi
+
         python3 build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
         ./build/install-build-deps.sh
 
