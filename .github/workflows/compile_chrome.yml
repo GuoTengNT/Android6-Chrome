@@ -30,13 +30,13 @@ jobs:
           clang
 
     # Install Android NDK and SDK for building Chrome for Android
-    - name: Set up Android NDK and SDK
-      run: |
-        sudo apt-get install -y openjdk-8-jdk
-        curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o sdk-tools.zip
-        unzip sdk-tools.zip -d $HOME/android-sdk
-        yes | $HOME/android-sdk/tools/bin/sdkmanager --licenses
-        $HOME/android-sdk/tools/bin/sdkmanager "platforms;android-23" "build-tools;29.0.3" "ndk;21.4.7075529"
+    - name: Set up Android SDK
+  run: |
+    sudo apt-get install -y openjdk-8-jdk
+    curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o sdk-tools.zip
+    unzip sdk-tools.zip -d $HOME/android-sdk
+    yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+    $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-23" "build-tools;29.0.3" "ndk;21.4.7075529"
 
     # Build Chromium/Chrome for Android
     - name: Build Chromium for Android
