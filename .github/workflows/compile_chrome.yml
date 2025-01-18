@@ -42,7 +42,9 @@ jobs:
         mkdir -p $HOME/android-sdk/cmdline-tools/latest
         
         # Move the contents of cmdline-tools to latest (not the whole directory itself)
-        mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+        mv $HOME/android-sdk/cmdline-tools/bin $HOME/android-sdk/cmdline-tools/latest/
+        mv $HOME/android-sdk/cmdline-tools/lib $HOME/android-sdk/cmdline-tools/latest/
+        mv $HOME/android-sdk/cmdline-tools/source.properties $HOME/android-sdk/cmdline-tools/latest/
         
         # Remove the now empty cmdline-tools directory
         rmdir $HOME/android-sdk/cmdline-tools
