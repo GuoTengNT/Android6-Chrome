@@ -33,10 +33,18 @@ jobs:
     - name: Set up Android SDK
       run: |
         sudo apt-get install -y openjdk-8-jdk
+        
+        # Download and unzip SDK tools
         curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o sdk-tools.zip
         unzip sdk-tools.zip -d $HOME/android-sdk
-        yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
-        $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-23" "build-tools;29.0.3" "ndk;21.4.7075529"
+        
+        # Create required directory structure for sdkmanager
+        mkdir -p $HOME/android-sdk/cmdline-tools/latest
+        mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest
+        
+        # Accept licenses and install necessary SDK components
+        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
+        $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-23" "build-tools;29.0.3" "ndk;21.4.7075529"
 
     # Build Chromium/Chrome for ARM64 Android
     - name: Build Chromium for ARM64 Android
