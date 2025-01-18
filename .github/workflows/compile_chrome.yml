@@ -1,4 +1,4 @@
-name: Build Chrome for Android 6
+name: Build Chrome for Android 6 (ARM64)
 
 on:
   push:
@@ -31,19 +31,25 @@ jobs:
 
     # Install Android NDK and SDK for building Chrome for Android
     - name: Set up Android SDK
-  run: |
-    sudo apt-get install -y openjdk-8-jdk
-    curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o sdk-tools.zip
-    unzip sdk-tools.zip -d $HOME/android-sdk
-    yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
-    $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-23" "build-tools;29.0.3" "ndk;21.4.7075529"
-
-    # Build Chromium/Chrome for Android
-    - name: Build Chromium for Android
       run: |
-        # Here we assume that you have a chromium src tree in the repository
+        sudo apt-get install -y openjdk-8-jdk
+        curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o sdk-tools.zip
+        unzip sdk-tools.zip -d $HOME/android-sdk
+        yes | $HOME/android-sdk/cmdline-tools/bin/sdkmanager --licenses
+        $HOME/android-sdk/cmdline-tools/bin/sdkmanager "platforms;android-23" "build-tools;29.0.3" "ndk;21.4.7075529"
+
+    # Build Chromium/Chrome for ARM64 Android
+    - name: Build Chromium for ARM64 Android
+      run: |
+        # Assuming you have a chromium source tree in the repository
         cd chromium
-        python3 build/linux/sysroot_scripts/install-sysroot.py --arch=arm
+
+        # Install sysroot for ARM64 architecture
+        python3 build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
         ./build/install-build-deps.sh
-        gn gen out/Default --args="target_os=\"android\" target_cpu=\"arm\" is_debug=false android_sdk_root=\"$HOME/android-sdk\""
+
+        # Generate build files using gn for ARM64
+        gn gen out/Default --args="target_os=\"android\" target_cpu=\"arm64\" is_debug=false android_sdk_root=\"$HOME/android-sdk\""
+
+        # Run ninja to build the chrome executable for ARM64
         ninja -C out/Default chrome
