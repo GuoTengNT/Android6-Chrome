@@ -1,102 +1,76 @@
-name: Build Chrome for Android 6 (ARM64)
+name: Build Chromium for Android 6
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest  # GitHub Actions将在Ubuntu虚拟环境上运行
 
     steps:
-    # Checkout repository containing Chromium/Chrome source code
-    - name: Checkout Chromium source code
-      uses: actions/checkout@v2
+      - name: Checkout code
+        uses: actions/checkout@v2
 
-    # Initialize and update submodules (if necessary)
-    - name: Initialize and update submodules
-      run: |
-        git submodule update --init --recursive
-        
-        # Verify if submodules were correctly initialized
-        echo "Checking for install-sysroot.py in submodules..."
-        if [ ! -f build/linux/sysroot_scripts/install-sysroot.py ]; then
-          echo "install-sysroot.py not found in main repository or submodules."
-          exit 1
-        fi
+      - name: Set up depot_tools
+        run: |
+          # 安装Depot Tools（Chromium构建工具）
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          export PATH="$PATH:$PWD/depot_tools"
 
-    # Set up required dependencies for building Chromium
-    - name: Set up dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          build-essential \
-          git \
-          python3 \
-          python3-dev \
-          g++ \
-          curl \
-          cmake \
-          gn \
-          clang
+      - name: Install dependencies
+        run: |
+          # 更新系统并安装必要的依赖
+          sudo apt-get update
+          sudo apt-get install -y \
+            build-essential \
+            python3 \
+            python3-pip \
+            python3-setuptools \
+            git \
+            curl \
+            clang \
+            libtool \
+            pkg-config \
+            libgtk2.0-dev \
+            libnss3-dev \
+            libgconf-2-4 \
+            libxslt1-dev \
+            libxss1
 
-    # Install Android NDK and SDK for building Chrome for Android
-    - name: Set up Android SDK
-      run: |
-        sudo apt-get install -y openjdk-8-jdk
-        
-        # Download and unzip SDK tools
-        curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o sdk-tools.zip
-        unzip sdk-tools.zip -d $HOME/android-sdk
-        
-        # Check the contents of the cmdline-tools directory before moving files
-        echo "Contents of cmdline-tools before moving:"
-        ls -la $HOME/android-sdk/cmdline-tools
-        
-        # Create the directory structure for 'latest'
-        mkdir -p $HOME/android-sdk/cmdline-tools/latest/bin
-        mkdir -p $HOME/android-sdk/cmdline-tools/latest/lib
-        
-        # Move individual files and subdirectories (not the entire bin directory)
-        mv $HOME/android-sdk/cmdline-tools/bin/* $HOME/android-sdk/cmdline-tools/latest/bin/
-        mv $HOME/android-sdk/cmdline-tools/lib/* $HOME/android-sdk/cmdline-tools/latest/lib/
-        mv $HOME/android-sdk/cmdline-tools/source.properties $HOME/android-sdk/cmdline-tools/latest/
+      - name: Fetch Chromium source code
+        run: |
+          # 创建Chromium工作目录并获取Android源代码
+          mkdir ~/chromium && cd ~/chromium
+          fetch --nohooks android
+          cd src
 
-        # Check the contents of cmdline-tools after moving files
-        echo "Contents of cmdline-tools after moving:"
-        ls -la $HOME/android-sdk/cmdline-tools/latest
-        
-        # Accept licenses and install necessary SDK components
-        yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
-        $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-23" "build-tools;29.0.3" "ndk;21.4.7075529"
+      - name: Install build dependencies
+        run: |
+          # 安装Chromium所需的所有构建依赖
+          build/install-build-deps.sh
 
-    # Verify the install-sysroot.py exists before proceeding with build
-    - name: Verify install-sysroot.py exists
-      run: |
-        if [ ! -f build/linux/sysroot_scripts/install-sysroot.py ]; then
-          echo "Error: install-sysroot.py not found!"
-          exit 1
-        else
-          echo "install-sysroot.py found!"
-        fi
+      - name: Set up GN args
+        run: |
+          # 设置构建配置（使用Android 6）
+          gn gen out/Default --args='target_os="android" target_cpu="arm64" use_remoteexec=true android_static_analysis="build_server"'
 
-    # Build Chromium for ARM64 Android
-    - name: Build Chromium for ARM64 Android
-      run: |
-        # Verify that the Chromium source has been correctly checked out
-        echo "Current directory contents:"
-        ls -la
-        
-        # Change to the correct directory where the Chromium source code is located
-        cd $GITHUB_WORKSPACE
+      - name: Build Chromium for Android
+        run: |
+          # 使用Ninja构建Chromium APK
+          autoninja -C out/Default chrome_public_apk
 
-        # Install sysroot for ARM64 architecture (ensure the file exists)
-        python3 build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
-        ./build/install-build-deps.sh
+      - name: Install Chromium APK on Android
+        run: |
+          # 安装并启动Chromium APK
+          adb devices
+          autoninja -C out/Default chrome_public_apk install
 
-        # Generate build files using gn for ARM64
-        gn gen out/Default --args="target_os=\"android\" target_cpu=\"arm64\" is_debug=false android_sdk_root=\"$HOME/android-sdk\""
-
-        # Run ninja to build the chrome executable for ARM64
-        ninja -C out/Default chrome
+      - name: Run Tests (optional)
+        run: |
+          # 可选：运行Chromium的单元测试
+          autoninja -C out/Default chrome/test:unit_tests
