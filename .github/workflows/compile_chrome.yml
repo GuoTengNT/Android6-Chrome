@@ -51,12 +51,9 @@ jobs:
         mv $HOME/android-sdk/cmdline-tools/lib/* $HOME/android-sdk/cmdline-tools/latest/lib/
         mv $HOME/android-sdk/cmdline-tools/source.properties $HOME/android-sdk/cmdline-tools/latest/
 
-        # Remove the now empty cmdline-tools directory
-        rm -rf $HOME/android-sdk/cmdline-tools
-        
         # Check the contents of cmdline-tools after moving files
         echo "Contents of cmdline-tools after moving:"
-        ls -la $HOME/android-sdk/cmdline-tools
+        ls -la $HOME/android-sdk/cmdline-tools/latest
         
         # Accept licenses and install necessary SDK components
         yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
