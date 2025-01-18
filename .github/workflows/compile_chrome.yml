@@ -11,7 +11,7 @@ jobs:
 
     steps:
     # Checkout repository containing Chromium/Chrome source code
-    - name: Checkout source code
+    - name: Checkout Chromium source code
       uses: actions/checkout@v2
 
     # Set up required dependencies for building Chromium
@@ -62,8 +62,15 @@ jobs:
     # Build Chromium/Chrome for ARM64 Android
     - name: Build Chromium for ARM64 Android
       run: |
-        # Assuming you have a chromium source tree in the repository
-        cd chromium
+        # Verify that the Chromium source has been correctly checked out
+        echo "Current directory contents:"
+        ls -la
+        
+        # If the Chromium source is in a specific subdirectory, modify this path accordingly
+        # For example, if the Chromium source is in the 'src' directory, use:
+        # cd src
+        # Or if it's directly in the repository root, no need to change directory
+        cd $GITHUB_WORKSPACE
 
         # Install sysroot for ARM64 architecture
         python3 build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
