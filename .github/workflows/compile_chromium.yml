@@ -9,6 +9,7 @@ jobs:
       - run: sudo apt update && sudo apt install git
       - run: git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
       - run: export PATH="$PATH:/path/to/depot_tools"
+      - run: pwd
       - run: ls
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
