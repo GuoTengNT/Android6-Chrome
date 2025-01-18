@@ -38,9 +38,11 @@ jobs:
             pkg-config \
             libgtk2.0-dev \
             libnss3-dev \
-            libgconf-2-4 \
             libxslt1-dev \
             libxss1
+            sudo add-apt-repository ppa:gnome3-team/gnome3 -y
+            sudo apt-get update
+            sudo apt-get install libgconf-2-4
 
       - name: Fetch Chromium source code
         run: |
