@@ -40,7 +40,12 @@ jobs:
         
         # Create required directory structure for sdkmanager
         mkdir -p $HOME/android-sdk/cmdline-tools/latest
-        mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest
+        
+        # Move the contents of cmdline-tools to latest (not the whole directory itself)
+        mv $HOME/android-sdk/cmdline-tools/* $HOME/android-sdk/cmdline-tools/latest/
+        
+        # Remove the now empty cmdline-tools directory
+        rmdir $HOME/android-sdk/cmdline-tools
         
         # Accept licenses and install necessary SDK components
         yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
