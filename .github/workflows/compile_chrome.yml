@@ -38,6 +38,10 @@ jobs:
         curl -sS https://dl.google.com/android/repository/commandlinetools-linux-7583922_latest.zip -o sdk-tools.zip
         unzip sdk-tools.zip -d $HOME/android-sdk
         
+        # Check the contents of the cmdline-tools directory
+        echo "Contents of cmdline-tools before moving:"
+        ls -la $HOME/android-sdk/cmdline-tools
+        
         # Create required directory structure for sdkmanager
         mkdir -p $HOME/android-sdk/cmdline-tools/latest
         
@@ -45,6 +49,10 @@ jobs:
         mv $HOME/android-sdk/cmdline-tools/bin $HOME/android-sdk/cmdline-tools/latest/
         mv $HOME/android-sdk/cmdline-tools/lib $HOME/android-sdk/cmdline-tools/latest/
         mv $HOME/android-sdk/cmdline-tools/source.properties $HOME/android-sdk/cmdline-tools/latest/
+        
+        # Check the contents of cmdline-tools after moving
+        echo "Contents of cmdline-tools after moving:"
+        ls -la $HOME/android-sdk/cmdline-tools
         
         # Use rm -rf to forcefully remove the now empty cmdline-tools directory
         rm -rf $HOME/android-sdk/cmdline-tools
