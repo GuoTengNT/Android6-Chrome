@@ -6,7 +6,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - run: mkdir ~/chrome&& cd ~/chrome
-      - run: sudo update && sudo apt install git
+      - run: sudo apt update && sudo apt install git
       - run: git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
       - run: export PATH="$PATH:/path/to/depot_tools"
       - run: ls
