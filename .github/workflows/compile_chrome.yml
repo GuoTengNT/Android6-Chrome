@@ -15,8 +15,16 @@ jobs:
       uses: actions/checkout@v2
 
     # Initialize and update submodules (if necessary)
-    - name: Update Git submodules
-      run: git submodule update --init --recursive
+    - name: Initialize and update submodules
+      run: |
+        git submodule update --init --recursive
+        
+        # Verify if submodules were correctly initialized
+        echo "Checking for install-sysroot.py in submodules..."
+        if [ ! -f build/linux/sysroot_scripts/install-sysroot.py ]; then
+          echo "install-sysroot.py not found in main repository or submodules."
+          exit 1
+        fi
 
     # Set up required dependencies for building Chromium
     - name: Set up dependencies
