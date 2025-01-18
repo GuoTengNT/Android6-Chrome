@@ -11,4 +11,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: INIT
-        run: echo l
+      - run: mkdir ~/chrome
+      - run: cd ~/chrome
