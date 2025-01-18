@@ -10,7 +10,7 @@ jobs:
       - run: export PATH="$PATH:/home/runner/work/Android6-Chrome/Android6-Chrome/depot_tools"
       - run: pwd
       - run: ls
-      - run: mkdir chromium && cd chromium && ls && pwd && fetch --nohooks --no-history android
+      - run: export PATH="$PATH:/home/runner/work/Android6-Chrome/Android6-Chrome/depot_tools" && mkdir chromium && cd chromium && ls && pwd && fetch --nohooks --no-history android
       - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
