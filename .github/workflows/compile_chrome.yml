@@ -43,6 +43,8 @@ jobs:
             sudo add-apt-repository ppa:gnome3-team/gnome3 -y
             sudo apt-get update
             sudo apt-get install libgconf-2-4
+            sudo add-apt-repository --remove ppa:gnome3-team/gnome3
+            sudo apt-get update
 
       - name: Fetch Chromium source code
         run: |
