@@ -13,3 +13,5 @@ jobs:
       - name: INIT
       - run: mkdir ~/chrome
       - run: cd ~/chrome
+      - name: Check out repository code
+        uses: actions/checkout@v4
