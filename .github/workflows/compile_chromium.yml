@@ -16,8 +16,11 @@ jobs:
       # 拉取Chromium源码
       - name: Fetch Chromium source
         run: |
+          mkdir ~/chrome && cd ~/chrome
+          git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+          export PATH="$PATH:/path/to/depot_tools"
           mkdir chromium && cd chromium
-          fetch --nohooks android
+          fetch --nohooks --no-history android
       # 同步依赖项和运行hooks
       - name: Sync dependencies and run hooks
         run: |
