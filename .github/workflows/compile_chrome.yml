@@ -63,7 +63,17 @@ jobs:
         yes | $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
         $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platforms;android-23" "build-tools;29.0.3" "ndk;21.4.7075529"
 
-    # Build Chromium/Chrome for ARM64 Android
+    # Verify the install-sysroot.py exists before proceeding with build
+    - name: Verify install-sysroot.py exists
+      run: |
+        if [ ! -f build/linux/sysroot_scripts/install-sysroot.py ]; then
+          echo "Error: install-sysroot.py not found!"
+          exit 1
+        else
+          echo "install-sysroot.py found!"
+        fi
+
+    # Build Chromium for ARM64 Android
     - name: Build Chromium for ARM64 Android
       run: |
         # Verify that the Chromium source has been correctly checked out
@@ -74,11 +84,6 @@ jobs:
         cd $GITHUB_WORKSPACE
 
         # Install sysroot for ARM64 architecture (ensure the file exists)
-        if [ ! -f build/linux/sysroot_scripts/install-sysroot.py ]; then
-          echo "Error: install-sysroot.py not found!"
-          exit 1
-        fi
-
         python3 build/linux/sysroot_scripts/install-sysroot.py --arch=arm64
         ./build/install-build-deps.sh
 
